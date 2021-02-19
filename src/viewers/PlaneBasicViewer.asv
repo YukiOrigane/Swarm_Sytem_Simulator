@@ -1,0 +1,24 @@
+% 二次元平面上を扱うときの基本的な描画
+
+classdef PlaneBasicViewer < Viewer
+    methods
+        function obj = PlaneBasicViewer(sys,field)
+            obj@Viewer(sys,field);
+        end
+        
+        function plotPosition(obj,t,col)
+            if isempty(col)
+                col = zeros(sys.N,1);   % 設定されてなければ同じ色
+            end
+            obj.sys.calcGraphMatrices(t);
+            triuAdj = triu(obj.Adj,1);      % 隣接行列の上三角成分取り出し
+            for i = 1:obj.sys.N
+                for j = 1:obj.sys.N
+                    plot([objx(i,t),x(j,t)],[y(i,t),y(j,t)],'k-','LineWidth',2)
+                    hold on
+                end
+            end
+            scatter
+        end
+    end
+end

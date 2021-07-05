@@ -28,6 +28,9 @@ classdef PlaneModeViewer < PlaneBasicViewer
                     obj.plotPosition(t,obj.V(:,mode));
                 elseif type == "Mesh"
                     obj.plotMesh(t,obj.V(:,mode));
+                elseif type == "Linear"
+                    obj.plotLinear(t,obj.V(:,mode));
+                    grid on
                 end
                 %obj.plot3d(t,obj.V(:,mode));
                 %obj.plotScatter3d(t,obj.V(:,mode),obj.V(:,mode));
@@ -37,7 +40,7 @@ classdef PlaneModeViewer < PlaneBasicViewer
         end
         
         function spatialSpectrumView(obj)
-            plot(2:length(obj.d), sqrt(obj.d(2:end)),'*');
+            plot(1:length(obj.d), sqrt(abs(obj.d(1:end))),'*');
             title("spectrum $\sqrt{\lambda_i}$",'Interpreter','latex');
             xlabel("i th mode");
             ylabel("spectrum")

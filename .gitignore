@@ -55,3 +55,6 @@ CATKIN_IGNORE
 
 # movie
 .mp4
+
+# fig
+.png

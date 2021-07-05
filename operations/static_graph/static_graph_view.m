@@ -31,7 +31,7 @@ controller = LinearFeedBackController();
 k = 1;
 controller = controller.setGainMatrix(k*eye(Na*dim));
 
-swarm = swarm.setInitialCondition(initial_position,zeros(Na,dim));
+swarm = swarm.setInitialCondition([initial_position, zeros(Na,dim)]);
 
 
 for t = 1:1

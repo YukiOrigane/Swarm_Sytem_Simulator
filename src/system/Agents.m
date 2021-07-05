@@ -6,6 +6,8 @@ classdef Agents < System
         Adj                 % 接続行列
         Dist                % 距離行列
         Diff                % 差分行列
+        P                   % 固有基底の入った正則行列
+        Lambda              % 固有ベクトルを並べた対角行列
     end
     properties %(Access = protected)
         dist_val            % 距離に関連する状態の集合
@@ -16,7 +18,6 @@ classdef Agents < System
     methods
         function obj = Agents(N,dim,Nt,dt) % コンストラクタ
             obj@System(N,dim,Nt,dt);   % Systemクラスのコンストラクタ呼び出し
-            
         end
         
         function obj = observe(obj,t)     % 現在の状態から色々作る
@@ -45,6 +46,14 @@ classdef Agents < System
             obj.Adj = obj.Dist<obj.rv;
             Deg = diag(sum(obj.Adj,1));
             obj.Lap = Deg-obj.Adj;
+        end
+        
+        function obj = calcEignExpansion(obj,t)
+            obj = obj.calcGraphMatrices(t);
+            [obj.P,obj.Lambda] = eig(obj.Lap);
+            [lambda,ind] = sort(diag(obj.Lambda));
+            obj.Lambda = obj.Lambda(ind,ind);
+            obj.P = obj.P(ind,ind);
         end
         
         function obj = calcEuclidDistanceMatrix(obj)

@@ -8,6 +8,7 @@ classdef Agents < System
         Diff                % 差分行列
         P                   % 固有基底の入った正則行列
         Lambda              % 固有ベクトルを並べた対角行列
+        Deg                 % 次数行列
     end
     properties %(Access = protected)
         dist_val            % 距離に関連する状態の集合
@@ -43,9 +44,10 @@ classdef Agents < System
         function obj = calcGraphMatrices(obj,t)
             obj = obj.calcDifferenceMatrix(t);
             obj = obj.calcEuclidDistanceMatrix;
-            obj.Adj = obj.Dist<obj.rv;
-            Deg = diag(sum(obj.Adj,1));
-            obj.Lap = Deg-obj.Adj;
+            % obj.Adj = obj.Dist<obj.rv;
+            obj.Adj = (obj.Dist<obj.rv)-eye(obj.N); % 08/07集成
+            obj.Deg = diag(sum(obj.Adj,1));
+            obj.Lap = obj.Deg-obj.Adj;
         end
         
         function obj = calcEignExpansion(obj,t)

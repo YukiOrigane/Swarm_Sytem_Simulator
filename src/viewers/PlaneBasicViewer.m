@@ -33,7 +33,7 @@ classdef PlaneBasicViewer < Viewer
             if ~exist('view_line','var')
                 view_line = true;
             end
-            obj.sys.calcGraphMatrices(t);
+            obj.sys = obj.sys.calcGraphMatrices(t); % 08/12修正
             if(view_line)
                 triuAdj = triu(obj.sys.Adj,1);      % 隣接行列の上三角成分取り出し
                 for i = 1:obj.sys.N
@@ -79,8 +79,10 @@ classdef PlaneBasicViewer < Viewer
             x = obj.sys.x(:,1,t);
             y = obj.sys.x(:,2,t);
             plot(x,v);
+            %plot(1:10,v);
             hold on
             plot(x,v,'*');
+            %plot(1:10,v,'*');
             set(gca,'FontSize',12);
         end
         

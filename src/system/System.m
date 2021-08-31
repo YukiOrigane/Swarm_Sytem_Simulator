@@ -9,6 +9,7 @@ classdef System
         dim_name_list       % name of dimension
         t_vec;
         subsystems         % list of subsystem
+        u_histry           % 入力の時間履歴
     end
     methods
         function obj = System(N,dim,Nt,dt)
@@ -18,6 +19,7 @@ classdef System
             obj.dt = dt;
             obj.Nt = Nt;
             obj.x = zeros(N,dim,Nt);
+            obj.u_histry = zeros(N,dim,Nt);
             obj.t_vec = 0:dt:Nt*dt;
         end
         function obj = observe(obj)
@@ -36,7 +38,7 @@ classdef System
             %for subsystem = obj.subsystems
             %    obj.subsystem = obj.subsystem.update(obj,t,u);
             %end
-            
+            obj.u_histry(:,:,t) = u;
         end
         function obj = setInitialCondition(obj,x0)
             obj.x(:,:,1) = x0;

@@ -33,8 +33,26 @@ xlabel("t[s]")
 ylabel("I(t)")
 
 figure
+plot(t_vec, quat2eul(permute(swarm.x(1,4:7,:),[3,2,1]),'ZYX'))
+xlabel("t[s]")
+ylabel("Eular Angle")
+legend("roll(Z)","pitch(Y)","yaw(X)")
+
+figure
 x = permute(swarm.x(:,:,:),[1,3,2]); % [エージェント数,時間,次元]
 plot3(x(1,:,1),x(1,:,2),x(1,:,3))
+grid on
+
+figure
+l = permute(repmat([0,0,-1],Nt+1,1),[3,2,1]); % エージェント番号,要素,時間
+b = controller.interior_sys.x(1,9:11,:);
+c = controller.interior_sys.x(1,6:8,:);
+theta = acos(pagemtimes(c,'none',l,'transpose')./vecnorm(c,2,2)./vecnorm(l,2,2));
+phi = acos(pagemtimes(b(1,1:2,:),'none',c(1,1:2,:),'transpose')./vecnorm(b(1,1:2,:),2,2)./vecnorm(c(1,1:2,:),2,2));
+plot(t_vec, permute(theta,[3,1,2]));
+hold on
+plot(t_vec, permute(phi,[3,1,2]));
+legend("\theta","\phi")
 grid on
 %{
 figure

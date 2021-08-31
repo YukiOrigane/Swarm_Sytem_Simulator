@@ -35,7 +35,7 @@ classdef PlaneModeViewer < PlaneBasicViewer
                 %obj.plot3d(t,obj.V(:,mode));
                 %obj.plotScatter3d(t,obj.V(:,mode),obj.V(:,mode));
                 
-                title(string(mode)+" th mode ; \lambda_{"+string(mode)+"} = " +string(obj.d(mode)));
+                title(string(mode-1)+" th mode ; $$\sqrt{\sigma}_{"+string(mode-1)+"}$$ = " +string(sqrt(obj.d(mode)))+ " rad/m", 'Interpreter','latex');
             end
         end
         

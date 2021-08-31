@@ -11,10 +11,14 @@ classdef RobotWithCOS < Agents
     
     methods
         % コンストラクタ．エージェント数,空間次元,振動子次元,シミュレーション数,刻み時間
-        function obj = RobotWithCOS(N,sp_dim,osc_dim,Nt,dt)
+        function obj = RobotWithCOS(N,sp_dim,osc_dim,Nt,dt,is_explicit)
             obj@Agents(N,sp_dim+osc_dim,Nt,dt);   % Systemクラスのコンストラクタ呼び出し
             obj.sys_robot = LinearTwoIntegerSystemAgents(N,sp_dim,Nt,dt);   % 移動体のシステム宣言
-            obj.sys_cos = CoupledOscillator(N,osc_dim,Nt,dt);
+            if exist('is_explicit')==0
+                obj.sys_cos = CoupledOscillator(N,osc_dim,Nt,dt);
+            else
+                obj.sys_cos = CoupledOscillatorExplicit(N,osc_dim,Nt,dt);
+            end
         end
         
         % グラフラプラシアン周りの諸設定

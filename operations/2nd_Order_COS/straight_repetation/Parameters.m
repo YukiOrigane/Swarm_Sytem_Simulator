@@ -13,22 +13,26 @@ classdef Parameters < matlab.mixin.SetGet
         num
         omega_f
         formation
+        scheme
     end
     
     methods
         function obj = Parameters()
-            obj.Nt = 600;
-            obj.dt = 0.01;
-            obj.rv = 1.5;
+            obj.Nt = 3000;
+            obj.dt = 0.02;
+            obj.rv = 1.1;
             obj.Omega_0 = 5;
             obj.kappa = 100;
-            obj.gamma = 0.1;
-            obj.tau = 100;
+            obj.gamma = 0;%0.01;
+            obj.tau = 20;
             obj.T = 1000;
-            obj.I_0 = 0.001;
+            obj.I_0 = 0.001;%0.001;
             obj.num = 1;
             obj.omega_f = 3;
+            %obj.formation = "agents20_rect_4_5";
+            %obj.formation = "agents21_ball";
             obj.formation = "agents10_rect_1_10";
+            obj.scheme = "explicit";%"state";
         end
         
         function obj = setParamList(obj,mat)

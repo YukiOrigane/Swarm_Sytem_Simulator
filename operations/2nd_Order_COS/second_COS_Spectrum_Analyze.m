@@ -3,45 +3,75 @@
 % Analyzerみたいなクラスを作るかは要検討
 
 x = permute(swarm.sys_cos.x(:,1,:),[1,3,2]);
-Phi = x-rem(Omega_0*t_vec,2*pi);
+Phi = x;%-Omega_0*t_vec;
 %%%%%%%% 予測
 i = 1;
 
 
 %%%%%%%% Phiの方
 %% 震源地
+figure
+predict = [1.57, 10^-5];
 subplot(1,2,1)
 [p1,f1] = pspectrum(Phi(1,:),t_vec);
 loglog(2*pi*f1,p1)
 grid on
+hold on
+line([predict(1),predict(1)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+hold off
 xlabel("角周波数[rad/s]")
 ylabel("パワー")
 title("Spectrum of \Phi_1")
-%xlim([0,5])
+ax = gca;
+ax.FontSize = 11;
+xlim([10^(-1),10^(2)])
+
 subplot(1,2,2)
 [p1,f1] = pspectrum(Phi(2,:),t_vec);
 loglog(2*pi*f1,p1)
 grid on
+hold on
+line([predict(1),predict(1)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+hold off
 xlabel("角周波数[rad/s]")
 ylabel("パワー")
 title("Spectrum of \Phi_2")
+ax = gca;
+ax.FontSize = 11;
+xlim([10^(-1),10^(2)])
 
 %% 中心
 subplot(1,2,1)
-[p1,f1] = pspectrum(Phi(8,:),t_vec);
+[p1,f1] = pspectrum(Phi(15,:),t_vec);
 loglog(2*pi*f1,p1)
 grid on
+hold on
+line([predict(1),predict(1)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+hold off
 xlabel("角周波数[rad/s]")
 ylabel("パワー")
-title("Spectrum of \Phi_5")
-%xlim([0,5])
+title("Spectrum of \Phi_{15}")
+ax = gca;
+ax.FontSize = 11;
+xlim([10^(-1),10^(2)])
+
 subplot(1,2,2)
-[p1,f1] = pspectrum(Phi(9,:),t_vec);
+[p1,f1] = pspectrum(Phi(16,:),t_vec);
 loglog(2*pi*f1,p1)
 grid on
+hold on
+line([predict(1),predict(1)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+hold off
 xlabel("角周波数[rad/s]")
 ylabel("パワー")
-title("Spectrum of \Phi_6")
+title("Spectrum of \Phi_{16}")
+ax = gca;
+ax.FontSize = 11;
+xlim([10^(-1),10^(2)])
 
 %% 時間プロット
 plot(t_vec,Phi(1:3,:))
@@ -120,3 +150,37 @@ title("Spectrum of $\phi_{ij}$ ",'Interpreter','latex')
 legend("i=14,j=39","i=14,j=13")
 xlim([0,5])
 hold off
+
+%% 元入力のパワー
+
+
+%% 固有値予測
+
+% 予測
+l = 9;
+n = 10;
+scale = [1/2,1:n-2];
+mu = 2:n;
+nu = 2*pi/l*scale;
+sigma = nu.^2;
+omega = nu*sqrt(param.kappa);
+% 計算値
+%D = 
+figure
+subplot(1,2,1)
+plot(mu,nu,mu,sigma,'*');
+grid on;
+title("expected \nu and \sigma")
+legend("\nu (rad/m)","\sigma (rad^2/m^2)");
+xlabel("mode number")
+ax = gca;
+ax.FontSize = 11;
+
+subplot(1,2,2)
+plot(mu,omega,'*');
+grid on;
+title("expected \omega")
+legend("\omega (rad/s)");
+xlabel("mode number")
+ax = gca;
+ax.FontSize = 11;

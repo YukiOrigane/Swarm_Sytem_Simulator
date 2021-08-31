@@ -7,6 +7,9 @@ classdef LinearTwoIntegerSystemAgents < LinearSystemAgents
         A_22 % dxdt(t) to d^2xdt^2 : (Na*sp_dim)×(Na*sp_dim)行列
         B_1 % u to dxdt(t+1) : (Na*sp_dim)×(uの次元)行列
         B_2 % u to d^2xdt^2 : (Na*sp_dim)×(uの次元)行列
+        m
+        k
+        d
     end
     
     methods
@@ -22,6 +25,9 @@ classdef LinearTwoIntegerSystemAgents < LinearSystemAgents
             obj.A_11 = zeros(obj.N*obj.spatial_dim);
             obj.A_12 = eye(obj.N*obj.spatial_dim);
             obj.B_1 = zeros(obj.N*obj.spatial_dim);
+            obj.m = m(1,1); % 同じだと仮定
+            obj.d = d(1,1);
+            obj.k = k(1,1);
             M = diag(reshape(m,obj.N*obj.spatial_dim,1));
             D = diag(reshape(d,obj.N*obj.spatial_dim,1));
             K = diag(reshape(k,obj.N*obj.spatial_dim,1));

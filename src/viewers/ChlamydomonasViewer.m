@@ -10,6 +10,7 @@ classdef ChlamydomonasViewer < Viewer
             obj.sys2 = sys2;
         end
         
+        
         function obj = ChlamydoPositionPlot(obj,t)
             %{
             [X,Y,Z] = sphere;   % 単位球面の生成

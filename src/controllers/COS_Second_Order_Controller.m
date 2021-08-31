@@ -10,6 +10,7 @@ classdef COS_Second_Order_Controller < COS_LF_Controller
         I_0
         num
         omega_f
+        is_explicit
     end
     
     methods
@@ -17,6 +18,7 @@ classdef COS_Second_Order_Controller < COS_LF_Controller
         function obj = COS_Second_Order_Controller
             obj.T = 0;  % 通常はインパルス入らない
             obj.Input = "none";
+            obj.is_explicit = "false";
         end
         
         % 入力の計算
@@ -40,7 +42,18 @@ classdef COS_Second_Order_Controller < COS_LF_Controller
             end
             %obj.u_cos = [omega+sys.x(:,2,t) , reshape( -obj.gamma*sys.x(:,2,t) - (obj.Kappa) * phi_gap_sum(:,1) + obj.f, sys.N, 1)];
             %sys = sys.calcGraphMatrices(t);
-            obj.u_cos = [omega+sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)-omega) - (obj.Kappa) * sys.Lap *sys.x(:,1,t)  + obj.f, sys.N, 1)];
+            %obj.u_cos = [omega+sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)+omega) - (obj.Kappa) * sys.Lap *sys.x(:,1,t)  + obj.f, sys.N, 1)];
+            if (obj.is_explicit == "false") % 状態方程式の差分法
+                obj.u_cos = [sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)-(omega*(t~=1))) - (obj.Kappa) * sys.Lap *sys.x(:,1,t) + obj.f + omega*(t==1)/sys.dt, sys.N, 1)];
+            else % 中心差分法
+                if (t>=2)
+                    obj.u_cos = reshape(1/(1+obj.gamma*sys.dt/2)*(2*sys.x(:,1,t)-(1-obj.gamma*sys.dt/2)*sys.x(:,1,t-1) - sys.dt^2 * (obj.Kappa) * sys.Lap *sys.x(:,1,t)) +sys.dt^2*obj.f ,sys.N,1);
+                else
+                    obj.u_cos = reshape(sys.x(:,1,t),sys.N,1);
+                end
+            end
+            %obj.u_cos = [sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)-(omega*(t~=1))) - (obj.Kappa) * pinv(diag(sum(sys.Adj,2)-1)) * sys.Lap *sys.x(:,1,t) + obj.f + omega*(t==1)/sys.dt, sys.N, 1)];
+            %obj.u_cos = [sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)-(omega*(t~=1))) - (obj.Kappa) * pinv(diag(sqrt(sum(sys.Adj,2)-1))) * sys.Lap  * pinv(diag(sqrt(sum(sys.Adj,2)-1)))*sys.x(:,1,t) + obj.f + omega*(t==1)/sys.dt, sys.N, 1)];
         end
         
         % パラメータセット．共通固有周波数,リーダー固有周波数,結合強度（対角行列 or 共通スカラ）
@@ -48,6 +61,10 @@ classdef COS_Second_Order_Controller < COS_LF_Controller
             obj.Omega_0 = Omega_0;
             obj.Kappa = kappa;
             obj.gamma = gamma;
+        end
+        
+        function obj = setExplicit(obj,is_explicit)
+            obj.is_explicit = is_explicit;
         end
         
         % インパルス入力をセット 事前にインパルス入力を仕組む

@@ -19,7 +19,7 @@ classdef QuatAngle1stOrderSystem < Agents
         % u : [エージェント数,6]
         function obj = update(obj,t,u)
             wx = u(:,4); wy = u(:,5); wz = u(:,6);
-            th1 = obj.x(:,4,t); th2 = obj.x(:,5,t); th3 = obj.x(:,6,t);
+            %th1 = obj.x(:,4,t); th2 = obj.x(:,5,t); th3 = obj.x(:,6,t);
             obj.x(:,1:3,t+1) = obj.x(:,1:3,t) + obj.dt * u(:,1:3); % 並進入力はuの1列から3列．そのまま反映される
             %obj.x(:,4,t+1) = obj.x(:,4,t) + obj.dt * csc(th2).*(-wx.*cos(th3)+wy.*sin(th3));
             %obj.x(:,5,t+1) = obj.x(:,5,t) + obj.dt * ( wx.*sin(th3)+wy.*cos(th3));

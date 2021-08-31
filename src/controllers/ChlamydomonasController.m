@@ -16,8 +16,8 @@ classdef ChlamydomonasController < Controller
         
         % コンストラクタ
         function obj = ChlamydomonasController(N,Nt,dt)
-            obj.interior_sys = Agents(N,8,Nt,dt); % I, p, eyespot(x,y,z)
-            obj.interior_sys = obj.interior_sys.setInitialCondition([zeros(N,8)]);
+            obj.interior_sys = Agents(N,11,Nt,dt); % I, p, eyespot(x,y,z), c, a
+            obj.interior_sys = obj.interior_sys.setInitialCondition([zeros(N,11)]);
         end
         
         function obj = setParam(obj,I_0,v_0,omega_c_0, omega_a_0, gamma_0, tau_0_ms)
@@ -44,19 +44,23 @@ classdef ChlamydomonasController < Controller
             b = pagemtimes( repmat([0 1 0],1,1,sys.N), Rot);
             c = pagemtimes( repmat([0 0 1],1,1,sys.N), Rot);
             e_light = repmat([0 0 -1],1,1,sys.N);
-            e_eyespot = (b+c)/sqrt(2);
+            %e_eyespot = (b+c)/sqrt(2);
+            e_eyespot = (b+a)/sqrt(2);
             obj.interior_sys.x(:,3:5,t+1) = permute(e_eyespot,[3,2,1]);
             obj.interior_sys.x(:,6:8,t+1) = permute(c,[3,2,1]);
-            obj.interior_sys.x(:,1,t+1) = obj.I_0 * (permute( pagemtimes(-e_light,'none',e_eyespot,'transpose'), [3,1,2])) /2; % [エージェント数,1,1]
+            obj.interior_sys.x(:,9:11,t+1) = permute(b,[3,2,1]);
+            obj.interior_sys.x(:,1,t+1) = obj.I_0 * (permute( pagemtimes(-e_light,'none',e_eyespot,'transpose'), [3,1,2])+1) /2; % [エージェント数,1,1]
             
             obj.u = zeros(sys.N,sys.dim); % 入力は0で初期化
             obj.u(:,1:3) = obj.v_0 * permute( c, [3,2,1] );
             tau = obj.tau_0_ms * 10^-3 / sys.dt;
             if t > tau % 時間遅れ対応可能？
                 obj.interior_sys.x(:,2,t+1) = obj.gamma_0 * (obj.interior_sys.x(:,1,t-tau)-obj.interior_sys.x(:,1,t-tau+1))/sys.dt;
+            else
+                obj.interior_sys.x(:,2,t+1) = 0;
                 %obj.u(:,1:3) = obj.v_0 * permute( c, [3,2,1] );
-                obj.u(:,4:6) = -obj.omega_c_0 * permute( c, [3,2,1] ) + (obj.omega_a_0-obj.interior_sys.x(:,2,t)).* permute( a, [3,2,1] );
             end
+            obj.u(:,4:6) = -obj.omega_c_0 * permute( c, [3,2,1] ) + (obj.omega_a_0-obj.interior_sys.x(:,2,t)).* permute( a, [3,2,1] );
         end
         
     end

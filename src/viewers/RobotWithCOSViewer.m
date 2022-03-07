@@ -18,6 +18,8 @@ classdef RobotWithCOSViewer < Viewer
             if exist('target','var')
                 if target == "gap"
                     obj.robot_view.plotPosition(t,obj.sys.sys_cos.x(:,1,t)-obj.sys.sys_cos.x(1,1,t),view_line);
+                elseif target == "average_gap"
+                    obj.robot_view.plotPosition(t,obj.sys.sys_cos.x(:,1,t)-mean(obj.sys.sys_cos.x(:,1,t)),view_line);    
                 else
                     obj.robot_view.plotPosition(t,obj.sys.sys_cos.x(:,1,t),view_line);
                 end

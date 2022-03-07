@@ -11,14 +11,14 @@ i = 1;
 %%%%%%%% Phiの方
 %% 震源地
 figure
-predict = [1.57, 10^-5];
+predict = [1.99, 10^-5];
 subplot(1,2,1)
-[p1,f1] = pspectrum(Phi(1,:),t_vec);
+[p1,f1] = pspectrum(Phi(8,:),t_vec);
 loglog(2*pi*f1,p1)
 grid on
 hold on
 line([predict(1),predict(1)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
-line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+%line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
 hold off
 xlabel("角周波数[rad/s]")
 ylabel("パワー")
@@ -33,7 +33,7 @@ loglog(2*pi*f1,p1)
 grid on
 hold on
 line([predict(1),predict(1)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
-line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
+%line([predict(2),predict(2)],[10^(-25);10^0],'Color','#D95319','LineStyle','--','LineWidth',0.1)
 hold off
 xlabel("角周波数[rad/s]")
 ylabel("パワー")

@@ -9,6 +9,7 @@ classdef Agents < System
         P                   % 固有基底の入った正則行列
         Lambda              % 固有ベクトルを並べた対角行列
         Deg                 % 次数行列
+        degree              % 総エッジ本数
     end
     properties %(Access = protected)
         dist_val            % 距離に関連する状態の集合
@@ -48,6 +49,7 @@ classdef Agents < System
             obj.Adj = (obj.Dist<obj.rv)-eye(obj.N); % 08/07集成
             obj.Deg = diag(sum(obj.Adj,1));
             obj.Lap = obj.Deg-obj.Adj;
+            %obj.degree = sum(obj.Deg,'all');
         end
         
         function obj = calcEignExpansion(obj,t)

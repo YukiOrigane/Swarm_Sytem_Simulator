@@ -39,7 +39,11 @@ swarm = swarm.setGraphProperties(1:2,rv,false);
 swarm.sys_robot = swarm.sys_robot.setMechanicalParameters(m,d,k);
 swarm.sys_robot = swarm.sys_robot.setInitialCondition([initial_position, zeros(Na,2)]);
 %swarm.sys_cos = swarm.sys_cos.setInitialCondition(rand(Na,osc_dim));
-swarm.sys_cos = swarm.sys_cos.setInitialCondition(zeros(Na,osc_dim));
+if param.osc_IC == "random"
+    swarm.sys_cos = swarm.sys_cos.setInitialCondition(2*pi*rand(Na,osc_dim));
+else
+    swarm.sys_cos = swarm.sys_cos.setInitialCondition(zeros(Na,osc_dim));
+end
 swarm.sys_cos = swarm.sys_cos.setPeriodic(false);
 osc_controller = COS_Second_Order_Controller();
 osc_controller = osc_controller.setParam(Omega_0,kappa,gamma);
@@ -157,7 +161,8 @@ grid on
 %% 番号リスト生成
 figure
 viewer2 = PlaneBasicViewer(swarm.sys_robot,field);
-viewer2.plotPositionNumber(1,[],true);
+%viewer2.plotPositionNumber(1,[],true);
+viewer2.plotPosition(1,[],true);
 %}
 figure
 viewer.robot_view = viewer.robot_view.analyzeGraphMode(10);
@@ -197,7 +202,8 @@ end
 
 function snap4(viewer,t)
     viewer.phaseLinearPlot(t,1:viewer.sys.N);
-    ylim([-0.1,0.1]);
+    %ylim([-0.1,0.1]);
+    ylim([-10,10]);
     xlim([-5,5]);
     grid on
     xlabel("Position (m)")

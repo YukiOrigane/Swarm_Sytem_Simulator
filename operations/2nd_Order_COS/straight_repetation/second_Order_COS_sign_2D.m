@@ -11,12 +11,24 @@ Nt = param.Nt;          %
 dt = param.dt;          % シミュレーション刻み時間
 t_vec = 0:dt:dt*Nt; % 時間ベクトル
 
-field = Fields(repmat([-5,5],2,1));
+%field = Fields(repmat([-5,5],2,1));
+field = Fields(repmat([-8,8],2,1));
 
 %run("agents20_rect_2_10")
 run(param.formation)
 %run("agents50_rect_2_25")
-Na = length(initial_position);
+
+use_calculated_position = false;
+%%%%%% x,yを外部から入れる場合v %%%%%%
+
+use_calculated_position = true;
+posx = x;
+posy = y;
+initial_position = [posx(:,1),posy(:,1)];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Na = length(initial_position);  % エージェント数
 
 sp_dim = 2;         % 空間的な次元（≠状態変数の次元）
 osc_dim = 2;        % 振動子の次元
@@ -55,6 +67,10 @@ end
 
 for t = 1:Nt
     swarm = swarm.observe(t);
+    if use_calculated_position
+        swarm.sys_robot.x(:,1,t) = posx(:,t);
+        swarm.sys_robot.x(:,2,t) = posy(:,t);
+    end
     swarm.sys_robot = swarm.sys_robot.calcGraphMatrices(t);
     swarm.sys_cos.Lap = swarm.sys_robot.Lap;    % グラフラプラシアンの共有
     osc_controller = osc_controller.calcInput(t,swarm.sys_cos);
@@ -102,7 +118,7 @@ xlabel("time (s)")
 ylabel("Sum of Energy")
 grid on
 ax = gca;
-ax.FontSize = 11;
+ax.FontSize = 14;
 
 %% 入力履歴
 figure
@@ -127,7 +143,7 @@ loglog(2*pi*f1,p1)
 grid on
 %% スペクトラムプロット
 figure
-viewer = viewer.spectrumAnalyze(100,osc_controller);
+viewer = viewer.spectrumAnalyze(3000,osc_controller);
 %h = bodeplot(viewer.sys_phi(1),viewer.sys_phi(2),viewer.sys_phi(3),viewer.sys_phi(4));
 %h = bodeplot(viewer.sys_phi(1:4));
 h = bodeplot(viewer.sys_phi(1));
@@ -138,7 +154,7 @@ xlim([0.01,1000])
 grid on
 ax = gca;
 ax.FontSize = 11;
-
+%% 
 figure
 viewer = viewer.spectrumAnalyze(100,osc_controller);
 %h = bodeplot(viewer.sys_xi(1),viewer.sys_xi(2),viewer.sys_xi(3),viewer.sys_xi(4));
@@ -157,7 +173,8 @@ grid on
 %% 番号リスト生成
 figure
 viewer2 = PlaneBasicViewer(swarm.sys_robot,field);
-viewer2.plotPositionNumber(1,[],true);
+%viewer2.plotPositionNumber(1,[],true);
+viewer2.plotPosition(1,[],true);
 %}
 figure
 viewer.robot_view = viewer.robot_view.analyzeGraphMode(10);
@@ -179,8 +196,11 @@ anime = anime.play(@snap,5);
 %anime.save([],[]);
 
 function snap(viewer,t)
-    viewer.phasePositionPlot(t,false,"gap");
+    %viewer.phasePositionPlot(t,true,"gap");
+    viewer.phasePositionPlot(t,true,"average_gap");
     colorbar
+    text(4.2,-6,"t="+string(t*0.02)+" s",'FontSize',15);
+    %caxis([-0.015,0.015])
 end
 
 function snap2(viewer,t)

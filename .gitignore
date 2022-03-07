@@ -51,10 +51,10 @@ qtcreator-*
 CATKIN_IGNORE
 
 # MATLAB
-.asv
+*.asv
 
 # movie
-.mp4
+*.mp4
 
 # fig
-.png
+*.png

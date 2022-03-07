@@ -52,6 +52,7 @@ CATKIN_IGNORE
 
 # MATLAB
 *.asv
+*.mat
 
 # movie
 *.mp4

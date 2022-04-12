@@ -10,6 +10,8 @@ classdef System
         t_vec;
         subsystems         % list of subsystem
         u_histry           % 入力の時間履歴
+        energy             % エネルギーの配列
+        energy_dim         % エネルギーの種類の次元
     end
     methods
         function obj = System(N,dim,Nt,dt)
@@ -21,6 +23,7 @@ classdef System
             obj.x = zeros(N,dim,Nt);
             obj.u_histry = zeros(N,dim,Nt);
             obj.t_vec = 0:dt:Nt*dt;
+            obj.energy_dim = 0;     % 次元は0に初期化
         end
         function obj = observe(obj)
             % 現在の状態から制御器に渡す何かの計算
@@ -40,9 +43,24 @@ classdef System
             %end
             obj.u_histry(:,:,t) = u;
         end
+        
+        % 初期条件の代入
         function obj = setInitialCondition(obj,x0)
             obj.x(:,:,1) = x0;
         end
+
+        % エネルギー次元の定義
+        function obj = setEnergyProperties(obj,energy_dim)
+            obj.energy_dim = energy_dim;
+            obj.energy = zeros(energy_dim,obj.Nt+1);
+        end
+
+        % エネルギーの計算を行う関数．各継承先で再定義
+        function obj = calcEnergy(obj, t)
+            %obj.energy(:,t) = ...
+        end
+
+        % 各状態次元の名称を設定
         function obj = setDimName(obj,dim_name_list)
             obj.dim_name_list = dim_name_list;
         end

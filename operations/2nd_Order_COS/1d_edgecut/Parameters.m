@@ -15,7 +15,9 @@ classdef Parameters < matlab.mixin.SetGet
         formation
         scheme
         osc_IC  % 振動子位相の初期条件 zero -> 0, random -> [0,2pi]乱数
-    end
+        Tcut % エッジ切断時間
+        Tbend
+    end 
     
     methods
         function obj = Parameters()
@@ -33,9 +35,13 @@ classdef Parameters < matlab.mixin.SetGet
             %obj.formation = "agents20_rect_4_5";
             %obj.formation = "agents20_rect_2_10";
             %obj.formation = "agents21_ball";
-            obj.formation = "agents10_rect_1_10";
+            %obj.formation = "agents10_rect_1_10";
+            %obj.formation = "agents03_rect_1_3";
+            obj.formation = "agents04_rect_2_2";
             obj.scheme = "explicit";%"state";
             obj.osc_IC = "random";
+            obj.Tcut = 2000;
+            obj.Tbend = 4000;
         end
         
         function obj = setParamList(obj,mat)

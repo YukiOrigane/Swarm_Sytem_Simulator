@@ -10,7 +10,14 @@ classdef CoupledOscillatorViewer < PlaneBasicViewer
             %plot(obj.sys.t_vec, permute(obj.sys.x(set,obj.sys.dim,:)-obj.sys.x(base_num,obj.sys.dim,:),[1,3,2]));
             plot(obj.sys.t_vec, permute(obj.sys.x(set,1,:)-obj.sys.x(base_num,1,:),[1,3,2]));
             lgd = legend(string(set));
-            lgd.String(base_num) = cellstr(string(base_num)+": (基準)");
+            %lgd.String(base_num) = cellstr(string(base_num)+": (基準)");
+            %lgd.NumColumns = round(length(set)/4);
+        end
+        
+        % 全エージェント平均値からのずれ
+        function phaseMeanPlot(obj,set) % 表示エージェント集合
+            plot(obj.sys.t_vec, permute(obj.sys.x(set,1,:)-mean(obj.sys.x(:,1,:),1),[1,3,2]));
+            lgd = legend(string(set));
             lgd.NumColumns = round(length(set)/4);
         end
         
@@ -22,8 +29,9 @@ classdef CoupledOscillatorViewer < PlaneBasicViewer
             lgd.NumColumns = round(length(set)/4);
         end
         
-        function virtualEnergyVIewer(obj)
-            obj.energyTimePlot(2);
+        function virtualEnergyViewer(obj,energy_dim)
+            %obj.energyTimePlot(2);
+            obj.energyTimePlot2(energy_dim);
         end
     end
 end

@@ -9,6 +9,7 @@ classdef CoupledOscillatorExplicit < Agents
         function obj = CoupledOscillatorExplicit(N,dim,Nt,dt) % コンストラクタ
             obj@Agents(N,dim,Nt,dt);   % Agentsクラスのコンストラクタ呼び出し
             obj.is_2pi_periodic = false;
+            obj = obj.setEnergyProperties(2);   % 疑似運動エネと疑似ポテンシャルエネ
         end
         
         function obj = setPeriodic(obj,flag)
@@ -28,5 +29,17 @@ classdef CoupledOscillatorExplicit < Agents
             end
             %obj.u_histry(:,2,t) = reshape(u_cos, obj.N, 1);
         end
+
+        function obj = calcEnergy(obj,t,kappa)
+            if obj.energy_dim == 0  % 次元設定がなされてないなら計算しない
+                return
+            end
+            obj.energy(1,t) = 1/2*obj.x(:,2,t+1).'*obj.x(:,2,t+1)*obj.dt;  % 疑似運動エネルギー
+            obj.energy(2,t) = 1/2*kappa*obj.x(:,1,t).'*obj.Lap*obj.x(:,1,t)*obj.dt; % 疑似ポテンシャルエネルギー
+            %Lall = [2 -1 -1 0; -1 2 0 -1; -1 0 2 -1; 0 -1 -1 2];
+            %Lall = [3 -1 -1 -1; -1 3 -1 -1; -1 -1 3 -1; -1 -1 -1 3];
+            %obj.energy(2,t) = 1/2*kappa*obj.x(:,1,t).'*Lall*obj.x(:,1,t)*obj.dt; % 疑似ポテンシャルエネルギー
+        end
+
     end
 end

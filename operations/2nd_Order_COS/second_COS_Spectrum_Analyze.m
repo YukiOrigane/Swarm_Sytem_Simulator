@@ -10,10 +10,14 @@ i = 1;
 
 %%%%%%%% Phiの方
 %% 震源地
+%t_range = 1:2400;
+t_range = 2501:5000;
+t_range = 1:Nt;
+
 figure
 predict = [1.99, 10^-5];
 subplot(1,2,1)
-[p1,f1] = pspectrum(Phi(8,:),t_vec);
+[p1,f1] = pspectrum(Phi(1,t_range),t_vec(t_range));
 loglog(2*pi*f1,p1)
 grid on
 hold on
@@ -28,7 +32,7 @@ ax.FontSize = 11;
 xlim([10^(-1),10^(2)])
 
 subplot(1,2,2)
-[p1,f1] = pspectrum(Phi(2,:),t_vec);
+[p1,f1] = pspectrum(Phi(3,t_range),t_vec(t_range));
 loglog(2*pi*f1,p1)
 grid on
 hold on

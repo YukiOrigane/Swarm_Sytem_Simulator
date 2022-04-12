@@ -34,5 +34,13 @@ classdef Viewer
         function energyTimePlot(obj,dim)
             plot(obj.sys.t_vec, permute(sum(obj.sys.x(:,dim,:).^2,1)/2*obj.sys.dt,[1,3,2]));
         end
+
+        function energyTimePlot2(obj,energy_dim)
+            if energy_dim == obj.sys.energy_dim+1   % 要求された次元がエネルギーの次元より1だけ大きい場合は総和を返す
+                plot(obj.sys.t_vec(2:end-1), sum(obj.sys.energy(:,2:end-1),1),'LineWidth',5);
+                return
+            end
+            plot(obj.sys.t_vec, obj.sys.energy(energy_dim,:));
+        end
     end
 end

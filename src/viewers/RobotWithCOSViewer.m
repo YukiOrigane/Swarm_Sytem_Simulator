@@ -40,6 +40,10 @@ classdef RobotWithCOSViewer < Viewer
             obj.cos_view.phaseGapPlot(set,base_num);
         end
         
+        function phaseMeanPlot(obj,set) % 表示エージェント集合
+            obj.cos_view.phaseGapPlot(set);
+        end
+        
         function phaseLinearPlot(obj,t,set)
             obj.robot_view.plotLinear(t,obj.sys.sys_cos.x(set,1,t)-mean(obj.sys.sys_cos.x(set,1,t)));
         end

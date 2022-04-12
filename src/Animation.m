@@ -33,6 +33,19 @@ classdef Animation
             disp("Animation : アニメーション描画を終了します")
         end
         
+        % 特定のフレームを描画
+        % func : 描画関数のポインタ
+        % t : 表示タイムステップ
+        % newfigure : trueならfigureを新しく生成
+        function obj = frameShot(obj,func,t,newfigure)
+            if newfigure == true
+                figure
+            end
+            func(obj.viewers,t);
+            hold off
+            drawnow;
+        end
+
         function obj = save(obj,name,save_speed)
             disp("Animation : 動画の保存を開始します")
             if isempty(save_speed)

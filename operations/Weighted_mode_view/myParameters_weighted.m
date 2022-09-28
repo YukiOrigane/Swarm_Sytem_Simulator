@@ -1,5 +1,5 @@
 
-classdef Parameters < matlab.mixin.SetGet
+classdef myParameters_weighted < matlab.mixin.SetGet
     properties
         Nt      % シミュレーションカウント総数
         dt      % 刻み時間[s]
@@ -18,10 +18,10 @@ classdef Parameters < matlab.mixin.SetGet
     end
     
     methods
-        function obj = Parameters()
-            obj.Nt = 5000;
+        function obj = myParameters_weighted()
+            obj.Nt = 500;
             obj.dt = 0.02;
-            obj.rv = 1.1;
+            obj.rv = 1.5;
             obj.Omega_0 = 5;
             obj.kappa = 10;
             obj.gamma = 0;
@@ -30,12 +30,14 @@ classdef Parameters < matlab.mixin.SetGet
             obj.I_0 = 0.001;%0.001;
             obj.num = 1;
             obj.omega_f = 3;
-            obj.formation = "agents20_rect_4_5";
+            %obj.formation = "agents20_rect_4_5";
             %obj.formation = "agents20_rect_2_10";
-            %obj.formation = "agents21_ball";
-            %obj.formation = "agents10_rect_1_10";
+            obj.formation = "agents21_ball";
+            %obj.formation = "make_from_narrow";
+            %obj.formation = "agents04_rect_1_4";
+            %obj.formation = "agents20_rect_1_20";
             obj.scheme = "explicit";%"state";
-            obj.osc_IC = "random";
+            obj.osc_IC = "zeros";%"random";
         end
         
         function obj = setParamList(obj,mat)

@@ -15,27 +15,29 @@ classdef Parameters < matlab.mixin.SetGet
         formation
         scheme
         osc_IC  % 振動子位相の初期条件 zero -> 0, random -> [0,2pi]乱数
+        is_normalize
     end
     
     methods
         function obj = Parameters()
-            obj.Nt = 5000;
+            obj.Nt = 2000;
             obj.dt = 0.02;
-            obj.rv = 1.1;
-            obj.Omega_0 = 5;
-            obj.kappa = 10;
-            obj.gamma = 0;
-            obj.tau = 20;
-            obj.T = 1000;
-            obj.I_0 = 0.001;%0.001;
+            obj.rv = 2.1;
+            obj.Omega_0 = 0;
+            obj.kappa = 0.01;
+            obj.gamma = 1;
+            obj.tau = 100;
+            obj.T = 2000;
+            obj.I_0 = 1;%0.001;
             obj.num = 1;
             obj.omega_f = 3;
-            obj.formation = "agents20_rect_4_5";
-            %obj.formation = "agents20_rect_2_10";
-            %obj.formation = "agents21_ball";
+            %obj.formation = "agents03_rect_1_3";
+            obj.formation = "agents04_rect_1_4";
+            %obj.formation = "agents04_rect_2_2";
             %obj.formation = "agents10_rect_1_10";
             obj.scheme = "explicit";%"state";
-            obj.osc_IC = "random";
+            obj.osc_IC = "zeros";
+            obj.is_normalize = false;%true;
         end
         
         function obj = setParamList(obj,mat)

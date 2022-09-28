@@ -33,7 +33,9 @@ classdef Parameters < matlab.mixin.SetGet
             obj.formation = "agents20_rect_4_5";
             %obj.formation = "agents20_rect_2_10";
             %obj.formation = "agents21_ball";
+            %obj.formation = "make_from_narrow";
             %obj.formation = "agents10_rect_1_10";
+            %obj.formation = "agents20_rect_1_20";
             obj.scheme = "explicit";%"state";
             obj.osc_IC = "random";
         end

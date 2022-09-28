@@ -1,22 +1,23 @@
 
-% 結合振動子系
-classdef COS_Second_Order_Controller < COS_LF_Controller
+% 結合振動子系（1階微分の拡散的相互作用）
+% 振動子次元が2のときでも，上にしか入力を入れない
+classdef COS_First_Order_Controller < COS_Second_Order_Controller
     properties
-        gamma   % 固有周波数の更新粘性
-        f % 外部入力（[エージェント数の縦ベクトル]）
-        Input
-        tau
-        T
-        I_0
-        num
-        omega_f
-        is_explicit
-        is_normalize    % 正規化グラフラプラシアンにするか？
+        %gamma   % 固有周波数の更新粘性
+        %f % 外部入力（[エージェント数の縦ベクトル]）
+        %Input
+        %tau
+        %T
+        %I_0
+        %num
+        %omega_f
+        %is_explicit
+        %is_normalize    % 正規化グラフラプラシアンにするか？
     end
     
     methods
         % コンストラクタ
-        function obj = COS_Second_Order_Controller
+        function obj = COS_First_Order_Controller
             obj.T = 0;  % 通常はインパルス入らない
             obj.Input = "none";
             obj.is_explicit = "false";
@@ -46,13 +47,13 @@ classdef COS_Second_Order_Controller < COS_LF_Controller
             %sys = sys.calcGraphMatrices(t);
             %obj.u_cos = [omega+sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)+omega) - (obj.Kappa) * sys.Lap *sys.x(:,1,t)  + obj.f, sys.N, 1)];
             if (obj.is_explicit == "false") % 状態方程式の差分法
-                obj.u_cos = [sys.x(:,2,t) , reshape( -obj.gamma*(sys.x(:,2,t)-(omega*(t~=1))) - (obj.Kappa) * sys.Lap *sys.x(:,1,t) + obj.f + omega*(t==1)/sys.dt, sys.N, 1)];
-            else % 中心差分法
+                obj.u_cos = [reshape( - (obj.Kappa) * sys.Lap *sys.x(:,1,t) + obj.f, sys.N, 1)];
+            else % 中心差分法 一個次のやつを直接叩き込む
                 if (t>=2)
                     if (obj.is_normalize)
-                        obj.u_cos = reshape(1/(1+obj.gamma*sys.dt/2)*(2*sys.x(:,1,t)-(1-obj.gamma*sys.dt/2)*sys.x(:,1,t-1) - sys.dt^2 * (obj.Kappa)*pinv(sys.Deg) * sys.Lap *sys.x(:,1,t)) +sys.dt^2*obj.f ,sys.N,1);
+                        obj.u_cos = reshape(sys.x(:,1,t-1) - sys.dt * (obj.Kappa)*pinv(sys.Deg) * sys.Lap *sys.x(:,1,t) +sys.dt*obj.f ,sys.N,1);
                     else
-                        obj.u_cos = reshape(1/(1+obj.gamma*sys.dt/2)*(2*sys.x(:,1,t)-(1-obj.gamma*sys.dt/2)*sys.x(:,1,t-1) - sys.dt^2 * (obj.Kappa) * sys.Lap *sys.x(:,1,t)) +sys.dt^2*obj.f ,sys.N,1);
+                        obj.u_cos = reshape(sys.x(:,1,t-1) - sys.dt * (obj.Kappa) * sys.Lap *sys.x(:,1,t) +sys.dt*obj.f ,sys.N,1);
                     end
                 else
                     obj.u_cos = reshape(sys.x(:,1,t),sys.N,1);
@@ -63,10 +64,9 @@ classdef COS_Second_Order_Controller < COS_LF_Controller
         end
         
         % パラメータセット．共通固有周波数,リーダー固有周波数,結合強度（対角行列 or 共通スカラ）
-        function obj = setParam(obj,Omega_0, kappa, gamma)
+        function obj = setParam(obj,Omega_0, kappa)
             obj.Omega_0 = Omega_0;
             obj.Kappa = kappa;
-            obj.gamma = gamma;
         end
         
         function obj = setExplicit(obj,is_explicit)

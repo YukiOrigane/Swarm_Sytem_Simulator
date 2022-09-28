@@ -95,7 +95,7 @@ classdef PlaneBasicViewer < Viewer
             mesh(xq,yq,vq);
             set(gca,'FontSize',12);
         end
-        
+
         function plotImage(obj,t,v)
             x = obj.sys.x(:,1,t);
             y = obj.sys.x(:,2,t);
@@ -105,6 +105,13 @@ classdef PlaneBasicViewer < Viewer
             imagesc(x,y,vq);
             set(gca,'FontSize',12);
         end
-        
+
+        function [xq,yq,vq] = getGridData(obj,t,v)
+            x = obj.sys.x(:,1,t);
+            y = obj.sys.x(:,2,t);
+            dx = 0.1; dy = 0.1;
+            [xq,yq] = meshgrid( obj.field.getFieldRangeX(1):dx:obj.field.getFieldRangeX(2), obj.field.getFieldRangeY(1):dy:obj.field.getFieldRangeY(2));
+            vq = griddata(x,y,v,xq,yq,'cubic');
+        end
     end
 end

@@ -11,24 +11,13 @@ Nt = param.Nt;          %
 dt = param.dt;          % シミュレーション刻み時間
 t_vec = 0:dt:dt*Nt; % 時間ベクトル
 
-field = Fields(repmat([-5,5],2,1));
-%field = Fields(repmat([-8,8],2,1));
+field = Fields(repmat([-8,8],2,1));
+%field = Fields(repmat([-5,5],2,1));
 
 %run("agents20_rect_2_10")
 run(param.formation)
 %run("agents50_rect_2_25")
-
-use_calculated_position = false;
-%%%%%% x,yを外部から入れる場合v %%%%%%
-%{
-use_calculated_position = true;
-posx = x;
-posy = y;
-initial_position = [posx(:,1),posy(:,1)];
-%}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Na = length(initial_position);  % エージェント数
+Na = length(initial_position);
 
 sp_dim = 2;         % 空間的な次元（≠状態変数の次元）
 osc_dim = 2;        % 振動子の次元
@@ -51,7 +40,11 @@ swarm = swarm.setGraphProperties(1:2,rv,false);
 swarm.sys_robot = swarm.sys_robot.setMechanicalParameters(m,d,k);
 swarm.sys_robot = swarm.sys_robot.setInitialCondition([initial_position, zeros(Na,2)]);
 %swarm.sys_cos = swarm.sys_cos.setInitialCondition(rand(Na,osc_dim));
-swarm.sys_cos = swarm.sys_cos.setInitialCondition(zeros(Na,osc_dim));
+if param.osc_IC == "random"
+    swarm.sys_cos = swarm.sys_cos.setInitialCondition(2*pi*rand(Na,osc_dim));
+else
+    swarm.sys_cos = swarm.sys_cos.setInitialCondition(zeros(Na,osc_dim));
+end
 swarm.sys_cos = swarm.sys_cos.setPeriodic(false);
 osc_controller = COS_Second_Order_Controller();
 osc_controller = osc_controller.setParam(Omega_0,kappa,gamma);
@@ -67,10 +60,6 @@ end
 
 for t = 1:Nt
     swarm = swarm.observe(t);
-    if use_calculated_position
-        swarm.sys_robot.x(:,1,t) = posx(:,t);
-        swarm.sys_robot.x(:,2,t) = posy(:,t);
-    end
     swarm.sys_robot = swarm.sys_robot.calcGraphMatrices(t);
     swarm.sys_cos.Lap = swarm.sys_robot.Lap;    % グラフラプラシアンの共有
     osc_controller = osc_controller.calcInput(t,swarm.sys_cos);
@@ -78,9 +67,82 @@ for t = 1:Nt
     swarm = swarm.update(t,zeros(Na*2*sp_dim,1),[osc_controller.u_cos]);
 end
 
+%%%%%%%%%%%%%%%%% 解析
+disp("解析開始")
+%%
+%{
+viewer = RobotWithCOSViewer(swarm,field);
+viewer.robot_view = viewer.robot_view.analyzeGraphMode(10);
+V = viewer.robot_view.V;    % 固有ベクトルの取り出し
+%estimater = geometricalInformationEstimater(Na,sp_dim,Nt,dt);  % 幾何的特徴量推定
+%estimater.input_sys = swarm;
+%f_sp = estimater.spatialization(V(:,3),swarm.sys_robot.x(:,1:2,:),1);
+figure
+viewer.robot_view.spacialModeView(10,3,[1,1],"Position");
+[xq,yq,vq] = viewer.robot_view.getGridData(1,V(:,3));
+[px,py] = gradient(vq);
+grid on
+hold on
+contour(xq,yq,vq)
+quiver(xq,yq,px,py,10)
+%contour(swarm.sys_robot.x(:,1,1),swarm.sys_robot.x(:,2,1),V(:,3));
+%}
+%% 内外判定
+swarm.sys_robot = swarm.sys_robot.calcNablaMatrix(t);   % 偏微分行列の計算
+partial_phi = zeros(Na,sp_dim,Nt);
+estimater = geometricalInformationEstimater(Na,sp_dim,Nt,dt);  % 幾何的特徴量推定
+estimater = estimater.setParam(3000,10^-10);
+for t = 1:Nt
+    estimater = estimater.observe(t,swarm);
+end
+t = 4500;
+figure
+viewer = PlaneBasicViewer(swarm.sys_robot,field);
+viewer.plotPosition(t,estimater.x(:,3,t),true);
+figure
+viewer = PlaneBasicViewer(swarm.sys_robot,field);
+viewer.plotPosition(t,estimater.x(:,4,t),true);
+
+%% 各方向のピーク周波数パワー
+t = 4500;
+figure
+viewer = PlaneBasicViewer(swarm.sys_robot,field);
+for i = 1:4
+    ax(i) = subplot(2,2,i);
+    viewer.plotPosition(t,log(estimater.peak_power(:,i,t)),true);
+    colorbar
+end
+title(ax(1), "$p[\omega^p_x]$", 'Interpreter','latex');
+title(ax(2), "$p_x[\omega^p_x]$", 'Interpreter','latex');
+title(ax(3), "$p[\omega^p_y]$", 'Interpreter','latex');
+title(ax(4), "$p_y[\omega^p_y]$", 'Interpreter','latex');
+
+%% 特定エージェントの位相
+partial_phi = estimater.partial_phi;
+
+index = 1;
+i_list =[4,11,18]; 
+for i = i_list
+    %i=3;
+    figure
+    %subplot(2,1,2)
+    %subplot(1,length(i_list),index)
+    spectrumAnalyzePlot(swarm.sys_cos.x(i,1,:),dt,1:Nt,[]);
+    hold on
+    spectrumAnalyzePlot(partial_phi(i,1,:),dt,1:Nt,[]);
+    hold on
+    spectrumAnalyzePlot(partial_phi(i,2,:),dt,1:Nt,[]);
+    xlim([0.5,10]);
+    ylim([10^-20,10]);
+    legend("$\phi$","$\partial/\partial x \phi$","$\partial/\partial y \phi$",'Interpreter','latex','FontSize',11);
+    title("i="+string(i));
+    index = index+1;
+end
+
 %%%%%%%%%%%%%%%%% プロットここから
 
 %% 時系列プロット
+%{
 figure
 subplot(1,2,1)
 viewer = RobotWithCOSViewer(swarm,field);
@@ -118,7 +180,7 @@ xlabel("time (s)")
 ylabel("Sum of Energy")
 grid on
 ax = gca;
-ax.FontSize = 14;
+ax.FontSize = 11;
 
 %% 入力履歴
 figure
@@ -143,7 +205,7 @@ loglog(2*pi*f1,p1)
 grid on
 %% スペクトラムプロット
 figure
-viewer = viewer.spectrumAnalyze(3000,osc_controller);
+viewer = viewer.spectrumAnalyze(100,osc_controller);
 %h = bodeplot(viewer.sys_phi(1),viewer.sys_phi(2),viewer.sys_phi(3),viewer.sys_phi(4));
 %h = bodeplot(viewer.sys_phi(1:4));
 h = bodeplot(viewer.sys_phi(1));
@@ -154,7 +216,7 @@ xlim([0.01,1000])
 grid on
 ax = gca;
 ax.FontSize = 11;
-%% 
+
 figure
 viewer = viewer.spectrumAnalyze(100,osc_controller);
 %h = bodeplot(viewer.sys_xi(1),viewer.sys_xi(2),viewer.sys_xi(3),viewer.sys_xi(4));
@@ -169,26 +231,18 @@ viewer.robot_view.spatialSpectrumView;
 viewer.robot_view = viewer.robot_view.analyzeGraphMode(10);
 viewer.robot_view.spacialModeView(10,2:5,[2,2],"Linear");
 grid on
-%{
+
 %% 番号リスト生成
 figure
 viewer2 = PlaneBasicViewer(swarm.sys_robot,field);
-%viewer2.plotPositionNumber(1,[],true);
-viewer2.plotPosition(1,[],true);
-%}
-%{
-%% ポジションプロット
+viewer2.plotPositionNumber(1,[],true);
+%viewer2.plotPosition(1,[],true);
+
 figure
-ts = 80;
-viewer2 = PlaneBasicViewer(swarm.sys_robot,field);
-%viewer2.plotPositionNumber(ts/dt,[],true);
-viewer2.plotPosition(ts/dt,[],true);
-grid on
-%}
-figure
+viewer = RobotWithCOSViewer(swarm,field);
 viewer.robot_view = viewer.robot_view.analyzeGraphMode(10);
-%viewer.robot_view.spacialModeView(10,2:4,[1,3],"Position");
-viewer.robot_view.spacialModeView(10,2:4,[1,3],"Mesh");
+%viewer.robot_view.spacialModeView(10,1:3,[3,1],"Linear");
+viewer.robot_view.spacialModeView(10,2:3,[1,2],"Position");
 grid on
 
 title("3rd mode")
@@ -202,15 +256,12 @@ anime = Animation(viewer);
 
 %% animation
 
-anime = anime.play(@snap,5);
+anime = anime.play(@snap4,5);
 %anime.save([],[]);
-
+%}
 function snap(viewer,t)
-    %viewer.phasePositionPlot(t,true,"gap");
-    viewer.phasePositionPlot(t,true,"average_gap");
+    viewer.phasePositionPlot(t,false,"gap");
     colorbar
-    text(4.2,-6,"t="+string(t*0.02)+" s",'FontSize',15);
-    %caxis([-0.015,0.015])
 end
 
 function snap2(viewer,t)
@@ -227,7 +278,8 @@ end
 
 function snap4(viewer,t)
     viewer.phaseLinearPlot(t,1:viewer.sys.N);
-    ylim([-0.1,0.1]);
+    %ylim([-0.1,0.1]);
+    ylim([-10,10]);
     xlim([-5,5]);
     grid on
     xlabel("Position (m)")
